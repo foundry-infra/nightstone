@@ -6,6 +6,7 @@ metadata:
   namespace: ingress
 data:
   8200: "platform/vault-ui:8200"
+  4466: "kube-system/headlamp:4466"
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -78,6 +79,10 @@ spec:
         - name: vault
           containerPort: 8200
           hostPort: 8200
+          protocol: TCP
+        - name: headlamp
+          containerPort: 4466
+          hostPort: 4466
           protocol: TCP
         readinessProbe:
           failureThreshold: 3
