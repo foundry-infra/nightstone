@@ -22,7 +22,8 @@ podAnnotations:
     provider = "oidc"
     reverse_proxy = true
     oidc_issuer_url = "https://keycloak.mackenzieclark.codes/auth/realms/goldengulp"
-    silence_ping_logging = true
+    silence_ping_logging = "true"
+    cookie_expire = "{{ .Data.data.OAUTH2_PROXY_COOKIE_EXPIRE }}"
     {{- end -}}
 
 resources:
