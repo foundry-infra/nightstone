@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: oauth2-proxy
+    chart: oauth2-proxy-5.0.0
+    heritage: Helm
+    release: oauth2-proxy
+  name: oauth2-proxy
+  namespace: goldengulp
+spec:
+  ports:
+  - name: http
+    port: 4180
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: oauth2-proxy
+    release: oauth2-proxy
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: oauth2-proxy
+    chart: oauth2-proxy-5.0.0
+    heritage: Helm
+    release: oauth2-proxy
+  name: oauth2-proxy
+  namespace: goldengulp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+      release: oauth2-proxy
+  template:
+    metadata:
+      annotations:
+        checksum/config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/config-emails: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/google-secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-oauth2-proxy.cfg: foundry/data/goldengulp/config
+        vault.hashicorp.com/agent-inject-template-oauth2-proxy.cfg: |
+          {{- with secret "foundry/data/goldengulp/config" -}}
+          client_id = "{{ .Data.data.OAUTH2_PROXY_CLIENT_ID }}"
+          client_secret = "{{ .Data.data.OAUTH2_PROXY_CLIENT_SECRET }}"
+          cookie_secret = "{{ .Data.data.OAUTH2_PROXY_COOKIE_SECRET }}"
+          http_address = "0.0.0.0:4180"
+          upstreams = [ "file:///dev/null" ]
+          email_domains = [ "*" ]
+          provider = "oidc"
+          reverse_proxy = true
+          oidc_issuer_url = "https://keycloak.mackenzieclark.codes/auth/realms/goldengulp"
+          silence_ping_logging = true
+          {{- end -}}
+        vault.hashicorp.com/role: goldengulp-foundry
+      labels:
+        app: oauth2-proxy
+        release: oauth2-proxy
+    spec:
+      containers:
+      - args:
+        - --http-address=0.0.0.0:4180
+        - --config=/vault/secrets/oauth2-proxy.cfg
+        env: null
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.0.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 0
+          timeoutSeconds: 1
+        name: oauth2-proxy
+        ports:
+        - containerPort: 4180
+          name: http
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 20m
+            memory: 50Mi
+        volumeMounts: null
+      serviceAccountName: foundry-vtt
+      tolerations: []
+      volumes: null
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    certmanager.k8s.io/acme-challenge-type: dns01
+    certmanager.k8s.io/acme-dns01-provider: digitalocean
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  labels:
+    app: oauth2-proxy
+    chart: oauth2-proxy-5.0.0
+    heritage: Helm
+    release: oauth2-proxy
+  name: oauth2-proxy
+  namespace: goldengulp
+spec:
+  rules:
+  - host: foundry.goldengulp.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: oauth2-proxy
+            port:
+              number: 4180
+        path: /oauth2
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - foundry.goldengulp.com
+    secretName: foundry.goldengulp.com-tls

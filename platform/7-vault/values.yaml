@@ -1,0 +1,45 @@
+dev:
+  enabled: false
+
+global:
+  enable: true
+  tlsDisable: false
+
+injector:
+  extraEnvironmentVars:
+    AGENT_INJECT_VAULT_ADDR: "https://secrets.mackenzieclark.codes:8200"
+server:
+  dataStorage:
+    enabled: true
+    storageClass: microk8s-hostpath
+  extraVolumes:
+    - type: secret
+      name: vault-tls
+  extraEnvironmentVars:
+    VAULT_ADDR: https://127.0.0.1:8200
+
+  service:
+    enabled: true
+
+  ha:
+    enabled: true
+    replicas: 1
+    raft:
+      enabled: true
+      config: |
+        disable_mlock = true
+        ui = true
+        listener "tcp" {
+          tls_disable     = "false"
+          tls_cert_file   = "/vault/userconfig/vault-tls/tls.crt"
+          tls_key_file    = "/vault/userconfig/vault-tls/tls.key"
+          address         = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+        storage "raft" {
+          path = "/vault/data"
+        }
+        service_registration "kubernetes" {}
+
+ui:
+  enabled: true

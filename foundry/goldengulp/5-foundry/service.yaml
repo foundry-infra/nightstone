@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: foundry-vtt
+  namespace: goldengulp
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http
+  selector:
+    app.kubernetes.io/name: foundry-vtt
+  type: ClusterIP
