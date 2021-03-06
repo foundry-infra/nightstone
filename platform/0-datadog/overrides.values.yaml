@@ -1,0 +1,8 @@
+clusterAgent:
+  tokenExistingSecret: dd-cluster-agent-token
+datadog:
+  apiKeyExistingSecret: dd-api-key
+  logs:
+    enabled: true
+    containerCollectAll: true
+  criSocketPath: "/var/snap/microk8s/common/run/containerd.sock" #/var/run/containerd/containerd.sock
