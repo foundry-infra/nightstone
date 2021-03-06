@@ -44,9 +44,9 @@ spec:
         checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
         checksum/google-secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/agent-inject-secret-oauth2-proxy.cfg: foundry/data/goldengulp/config
+        vault.hashicorp.com/agent-inject-secret-oauth2-proxy.cfg: foundry/data/frost-wind-terror/config
         vault.hashicorp.com/agent-inject-template-oauth2-proxy.cfg: |
-          {{- with secret "foundry/data/goldengulp/config" -}}
+          {{- with secret "foundry/data/frost-wind-terror/config" -}}
           client_id = "{{ .Data.data.OAUTH2_PROXY_CLIENT_ID }}"
           client_secret = "{{ .Data.data.OAUTH2_PROXY_CLIENT_SECRET }}"
           cookie_secret = "{{ .Data.data.OAUTH2_PROXY_COOKIE_SECRET }}"
@@ -55,14 +55,14 @@ spec:
           email_domains = [ "*" ]
           provider = "oidc"
           reverse_proxy = true
-          oidc_issuer_url = "https://keycloak.mackenzieclark.codes/auth/realms/goldengulp"
+          oidc_issuer_url = "https://keycloak.mackenzieclark.codes/auth/realms/frost-wind-terror"
           silence_ping_logging = "true"
           cookie_expire = "{{ .Data.data.OAUTH2_PROXY_COOKIE_EXPIRE }}"
           allowed_groups = ["player"]
           oidc_groups_claim = "realm_roles"
           scope = "openid email profile roles"
           {{- end -}}
-        vault.hashicorp.com/role: goldengulp-foundry
+        vault.hashicorp.com/role: frost-wind-terror-foundry
       labels:
         app: oauth2-proxy
         release: "oauth2-proxy"
@@ -124,9 +124,11 @@ metadata:
     certmanager.k8s.io/acme-dns01-provider: digitalocean
     kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
 spec:
   rules:
-    - host: "foundry.goldengulp.com"
+    - host: "foundry.frost-wind-terror.group"
       http:
         paths:
 
@@ -136,5 +138,5 @@ spec:
               servicePort: 4180
   tls:
     - hosts:
-      - foundry.goldengulp.com
-      secretName: foundry.goldengulp.com-tls
+      - foundry.frost-wind-terror.group
+      secretName: foundry.frost-wind-terror.group-tls

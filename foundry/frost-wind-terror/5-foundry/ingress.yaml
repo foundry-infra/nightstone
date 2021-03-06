@@ -1,0 +1,23 @@
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: foundry-vtt
+  namespace: frost-wind-terror
+  annotations:
+    nginx.ingress.kubernetes.io/auth-signin: 'https://$host/oauth2/start?rd=$escaped_request_uri'
+    nginx.ingress.kubernetes.io/auth-url: 'https://$host/oauth2/auth'
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+spec:
+  rules:
+  - host: foundry.frost-wind-terror.group
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: foundry-vtt
+            port:
+              number: 80
