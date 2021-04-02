@@ -1,0 +1,13 @@
+global:
+  cluster: nightstone
+  customSecretName: newrelic-license-key
+  customSecretLicenseKey: newrelic-license-key
+ksm:
+  enabled: true
+prometheus:
+  enabled: true
+kubeEvents:
+  enabled: true
+logging:
+  enabled: true
+# --set newrelic-infrastructure.privileged=true \
