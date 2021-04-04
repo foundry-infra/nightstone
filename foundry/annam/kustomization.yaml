@@ -5,3 +5,6 @@ namespace: annam
 
 resources:
 - ./base/namespace.yaml
+- ./base/pvc.yaml
+- ./base/serviceaccount.yaml
+- ./base/clusterrolebinding.yaml
