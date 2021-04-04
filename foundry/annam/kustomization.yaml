@@ -3,8 +3,9 @@ kind: Kustomization
 
 namespace: annam
 
+bases:
+  - ../base
+
 resources:
-- ./base/namespace.yaml
-- ./base/pvc.yaml
-- ./base/serviceaccount.yaml
-- ./base/clusterrolebinding.yaml
+- ./namespace.yaml
+- ./clusterrolebinding.yaml
