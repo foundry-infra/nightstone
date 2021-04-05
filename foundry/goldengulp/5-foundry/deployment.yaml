@@ -19,18 +19,6 @@ spec:
       annotations:
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/role: "goldengulp-foundry"
-        vault.hashicorp.com/agent-inject-secret-config: "foundry/data/goldengulp/config"
-        vault.hashicorp.com/agent-inject-template-config: |
-          {{- with secret "foundry/data/goldengulp/config" -}}
-          export FOUNDRY_ADMIN_KEY="{{ .Data.data.FOUNDRY_ADMIN_KEY }}"
-          export FOUNDRY_AWS_CONFIG="{{ .Data.data.FOUNDRY_AWS_CONFIG }}"
-          export FOUNDRY_HOSTNAME="{{ .Data.data.FOUNDRY_HOSTNAME }}"
-          export FOUNDRY_LICENSE_KEY="{{ .Data.data.FOUNDRY_LICENSE_KEY }}"
-          export FOUNDRY_PASSWORD="{{ .Data.data.FOUNDRY_PASSWORD }}"
-          export FOUNDRY_PROXY_PORT="{{ .Data.data.FOUNDRY_PROXY_PORT }}"
-          export FOUNDRY_PROXY_SSL="{{ .Data.data.FOUNDRY_PROXY_SSL }}"
-          export FOUNDRY_USERNAME="{{ .Data.data.FOUNDRY_USERNAME }}"
-          {{- end -}}
         vault.hashicorp.com/agent-inject-secret-config.json: "foundry/data/goldengulp/config"
         vault.hashicorp.com/agent-inject-template-config.json: |
           {{- with secret "foundry/data/goldengulp/config" -}}
@@ -83,6 +71,15 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /data
+        env:
+        - name: "FOUNDRY_AWS_CONFIG"
+          value: "/run/secrets/awsConfig.json"
+        - name: "FOUNDRY_MINIFY_STATIC_FILES"
+          value: "true"
+        - name: "FOUNDRY_PROXY_PORT"
+          value: "443"
+        - name: "FOUNDRY_PROXY_SSL"
+          value: "true"
       volumes:
       - name: data
         persistentVolumeClaim:
